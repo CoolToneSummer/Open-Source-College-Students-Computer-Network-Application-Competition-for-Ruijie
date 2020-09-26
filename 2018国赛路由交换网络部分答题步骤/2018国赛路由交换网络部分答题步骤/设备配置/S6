@@ -1,0 +1,208 @@
+ZW-S6000C-01#sh run
+
+Building configuration...
+Current configuration: 3852 bytes
+
+version S6000E_RGOS 11.4(1)B12P8
+hostname ZW-S6000C-01
+!
+no spanning-tree
+!
+username admin password admin
+!
+cwmp
+!
+install 0 S6000C-48GT4XS-E
+!
+sysmac 5869.6cdb.a311
+!
+mmu buffer-mode burst-enhance
+!
+nfpp
+!
+no service password-encryption
+!
+redundancy
+!
+no zam
+enable password admin
+enable service ssh-server
+!         
+vlan 10
+ name Develop
+!
+vlan 20
+ name Product
+!
+vlan 1
+!
+interface GigabitEthernet 0/1
+ switchport access vlan 10
+!
+interface GigabitEthernet 0/2
+ switchport access vlan 10
+!
+interface GigabitEthernet 0/3
+ switchport access vlan 10
+!
+interface GigabitEthernet 0/4
+ switchport access vlan 10
+!
+interface GigabitEthernet 0/5
+ switchport access vlan 20
+!
+interface GigabitEthernet 0/6
+ switchport access vlan 20
+!
+interface GigabitEthernet 0/7
+ switchport access vlan 20
+!
+interface GigabitEthernet 0/8
+ switchport access vlan 20
+!
+interface GigabitEthernet 0/9
+!
+interface GigabitEthernet 0/10
+!
+interface GigabitEthernet 0/11
+!
+interface GigabitEthernet 0/12
+!
+interface GigabitEthernet 0/13
+!
+interface GigabitEthernet 0/14
+!
+interface GigabitEthernet 0/15
+!
+interface GigabitEthernet 0/16
+!         
+interface GigabitEthernet 0/17
+!
+interface GigabitEthernet 0/18
+!
+interface GigabitEthernet 0/19
+!
+interface GigabitEthernet 0/20
+!
+interface GigabitEthernet 0/21
+!
+interface GigabitEthernet 0/22
+!
+interface GigabitEthernet 0/23
+!
+interface GigabitEthernet 0/24
+ no switchport
+ ip address 50.1.0.10 255.255.255.252
+!
+interface GigabitEthernet 0/25
+!
+interface GigabitEthernet 0/26
+!
+interface GigabitEthernet 0/27
+!         
+interface GigabitEthernet 0/28
+!
+interface GigabitEthernet 0/29
+!
+interface GigabitEthernet 0/30
+!
+interface GigabitEthernet 0/31
+!
+interface GigabitEthernet 0/32
+!
+interface GigabitEthernet 0/33
+!
+interface GigabitEthernet 0/34
+!
+interface GigabitEthernet 0/35
+!
+interface GigabitEthernet 0/36
+!
+interface GigabitEthernet 0/37
+!
+interface GigabitEthernet 0/38
+!
+interface GigabitEthernet 0/39
+!         
+interface GigabitEthernet 0/40
+!
+interface GigabitEthernet 0/41
+!
+interface GigabitEthernet 0/42
+!
+interface GigabitEthernet 0/43
+!
+interface GigabitEthernet 0/44
+!
+interface GigabitEthernet 0/45
+!
+interface GigabitEthernet 0/46
+!
+interface GigabitEthernet 0/47
+!
+interface GigabitEthernet 0/48
+!
+interface TenGigabitEthernet 0/49
+!
+interface TenGigabitEthernet 0/50
+!
+interface TenGigabitEthernet 0/51
+!         
+interface TenGigabitEthernet 0/52
+!
+interface Loopback 0
+ ip address 11.1.0.6 255.255.255.255
+!
+interface VLAN 10
+ ip address 60.1.10.254 255.255.255.0
+ ipv6 address 2001:195:10::254/64
+ ipv6 enable
+ no ipv6 nd suppress-ra
+ ipv6 ospf 10 area 0
+!
+interface VLAN 20
+ ip address 60.1.20.254 255.255.255.0
+ ipv6 address 2001:195:20::254/64
+ ipv6 enable
+ no ipv6 nd suppress-ra
+ ipv6 ospf 10 area 0
+!
+interface Tunnel 0
+ ipv6 address 2001:193:10::253/64
+ ipv6 enable
+ tunnel source 50.1.0.10
+ tunnel destination 50.1.0.14
+ ipv6 ospf 10 area 0
+!
+interface Mgmt 0
+!
+router bgp 110
+ bgp log-neighbor-changes
+ bgp graceful-restart restart-time 120
+ bgp graceful-restart stalepath-time 360
+ bgp graceful-restart
+ neighbor 50.1.0.9 remote-as 100
+ address-family ipv4
+  network 11.1.0.6 mask 255.255.255.255
+  network 50.1.0.8 mask 255.255.255.252
+  network 60.1.10.0 mask 255.255.255.0
+  network 60.1.20.0 mask 255.255.255.0
+  aggregate-address 60.1.0.0 255.255.0.0 summary-only
+  neighbor 50.1.0.9 activate
+  exit-address-family
+!
+ipv6 router ospf 10
+ graceful-restart
+!
+snmp-server host 172.16.0.254 traps version 2c ruijie
+snmp-server host 172.16.0.254 traps version 2c public
+snmp-server enable traps
+snmp-server community ruijie rw 
+snmp-server community public ro 
+!
+line console 0
+line vty 0 4
+ transport input ssh
+ login local
+!
+end

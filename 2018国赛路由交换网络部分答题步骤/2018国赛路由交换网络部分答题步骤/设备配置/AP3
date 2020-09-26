@@ -1,0 +1,112 @@
+FX-AP520-01(config)#sh run
+
+Building configuration...
+Current configuration: 1755 bytes
+
+version AP_RGOS 11.1(5)B40, Release(04221718)
+hostname FX-AP520-01
+fair-schedule
+!
+spectral
+!
+no cwmp
+!
+enable service web-server http
+enable service web-server https
+webmaster level 0 username admin password 7 04361c0b370d
+log_mng set up HTTP
+log_mng set upd 300
+no service password-encryption
+!
+link-check disable
+!
+dot11 wlan 1
+ ssid Ruijie-BJ_1_1
+!
+dot11 wlan 2
+ ssid Ruijie-BJ_1_2
+!
+nfpp
+!         
+wids
+!
+wlocation
+!
+vlan 1
+!
+vlan 30
+!
+vlan 40
+!
+interface GigabitEthernet 0/1
+ ip address dhcp
+!
+interface GigabitEthernet 0/1.3
+ encapsulation dot1Q 30
+!
+interface GigabitEthernet 0/1.4
+ encapsulation dot1Q 40
+!
+interface GigabitEthernet 0/2
+ ip address 192.168.111.1 255.255.255.0
+!
+interface Dot11radio 1/0
+ no ampdu-rts
+ country-code CN 
+ radio-type 802.11b
+ antenna receive 3
+ antenna transmit 3
+ rate-set 11b mandatory 1 2 5 11
+ rate-set 11g mandatory 1 2 5 11
+ rate-set 11g support 6 9 12 18 24 36 48 54
+ rate-set 11n mcs-support 15
+ rate-set 11ac mcs-support 19
+ no 11acsupport enable
+ channel 1
+ chan-width 20
+ station-role root-ap
+!
+interface Dot11radio 1/0.3
+ encapsulation dot1Q 30
+ wlan-id 1
+!
+interface Dot11radio 1/0.4
+ encapsulation dot1Q 40
+ wlan-id 2
+!
+interface Dot11radio 2/0
+ no ampdu-rts
+ country-code CN 
+ no short-preamble
+ radio-type 802.11a
+ antenna receive 3
+ antenna transmit 3
+ mu-mimo enable
+ rate-set 11a mandatory 6 12 24
+ rate-set 11a support 9 18 36 48 54
+ rate-set 11n mcs-support 15
+ rate-set 11ac mcs-support 19
+ 11acsupport enable
+ channel 149
+ chan-width 20
+ station-role root-ap
+!
+interface BVI 1
+!
+no offline-detect
+!
+line console 0
+ login
+ password admin
+line vty 0 4
+ privilege level 15
+ login
+ password admin
+!
+end
+FX-AP520-01(config)#$                                                        
+FX-AP520-01(config)#
+FX-AP520-01(config)#
+FX-AP520-01(config)#
+FX-AP520-01(config)#
+FX-AP520-01(config)#

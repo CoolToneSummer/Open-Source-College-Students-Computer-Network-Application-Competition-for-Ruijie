@@ -1,0 +1,175 @@
+BX-WS6008-01#
+BX-WS6008-01# sh run
+
+Building configuration...
+Current configuration: 3621 bytes
+
+version AC_RGOS 11.1(5)B9P11, Release(05160319)
+hostname BX-WS6008-01
+!
+wlan-config 1 Ruijie-BX_1
+ wlan-based per-user-limit down-streams average-data-rate 800 burst-data-rate 1600
+ tunnel local
+!
+ap-group BX
+ interface-mapping 1 60 ap-wlan-id 1
+ tunnel local wlan 1 vlan 60
+!
+ap-group default
+!
+ap-config all
+!
+ac-controller
+ country CN
+ 802.11g network rate 1 disabled
+ 802.11g network rate 2 disabled
+ 802.11g network rate 5 disabled
+ 802.11g network rate 6 supported
+ 802.11g network rate 9 supported
+ 802.11g network rate 11 mandatory
+ 802.11g network rate 12 supported
+ 802.11g network rate 18 supported
+ 802.11g network rate 24 supported
+ 802.11g network rate 36 supported
+ 802.11g network rate 48 supported
+ 802.11g network rate 54 supported
+ 802.11b network rate 1 disabled
+ 802.11b network rate 2 disabled
+ 802.11b network rate 5 disabled
+ 802.11b network rate 11 mandatory
+ 802.11a network rate 6 disabled
+ 802.11a network rate 9 disabled
+ 802.11a network rate 12 mandatory
+ 802.11a network rate 18 supported
+ 802.11a network rate 24 mandatory
+ 802.11a network rate 36 supported
+ 802.11a network rate 48 supported
+ 802.11a network rate 54 supported
+!
+ip dhcp snooping
+!
+username admin password admin
+!
+cwmp
+!
+service dhcp
+ip dhcp excluded-address 192.1.50.252 192.1.50.254
+ip dhcp excluded-address 192.1.60.252 192.1.60.254
+!
+ip dhcp pool AP
+ option 138 ip 11.1.0.204 11.1.0.205 
+ network 192.1.50.0 255.255.255.0
+ default-router 192.1.50.254 
+!
+ip dhcp pool yonghu
+ network 192.1.60.0 255.255.255.0
+ default-router 192.1.60.254 
+!
+install 0 WS6008
+!
+sysmac 5869.6ce0.f4b8
+!
+no service password-encryption
+!
+redundancy
+!
+tftp-server enable
+schedule session 1
+schedule session 1 time-range 1 period Mon to Fri time 21:00 to 23:30
+!         
+link-check disable
+!
+nfpp
+!
+wids
+!
+enable password admin
+enable service ssh-server
+vlan 1
+!
+vlan 50
+ name AP
+!
+vlan 60
+ name Wireless
+!
+vlan 100
+ name Manage
+!
+interface GigabitEthernet 0/1
+ switchport mode trunk
+ switchport trunk allowed vlan only 50,60,100
+ ip dhcp snooping trust
+!         
+interface GigabitEthernet 0/2
+!
+interface GigabitEthernet 0/3
+!
+interface GigabitEthernet 0/4
+!
+interface GigabitEthernet 0/5
+!
+interface GigabitEthernet 0/6
+!
+interface GigabitEthernet 0/7
+ medium-type fiber
+!
+interface GigabitEthernet 0/8
+ medium-type fiber
+!
+interface Loopback 0
+ ip address 11.1.0.204 255.255.255.255
+!
+interface VLAN 1
+!
+interface VLAN 50
+ ip address 192.1.50.252 255.255.255.0
+ vrrp 50 ip 192.1.50.254
+ vrrp 50 priority 120
+!
+interface VLAN 60
+ ip address 192.1.60.252 255.255.255.0
+ vrrp 60 ip 192.1.60.254
+ vrrp 60 priority 120
+!
+interface VLAN 100
+ ip address 192.1.100.2 255.255.255.0
+ vrrp 110 ip 192.1.100.1
+ vrrp 110 priority 120
+ ip ospf priority 0
+!
+wlan hot-backup 11.1.0.205
+ !
+ context 10
+  ap-group BX
+ !
+ wlan hot-backup enable
+!
+wlansec 1
+ security rsn enable
+ security rsn ciphers aes enable
+ security rsn akm psk enable
+ security rsn akm psk set-key ascii 12345678
+ arp-check
+ ip verify source port-security
+!
+router ospf 10
+ graceful-restart
+ area 1 nssa no-summary
+ network 11.1.0.204 0.0.0.0 area 1
+ network 192.1.50.0 0.0.0.255 area 1
+ network 192.1.60.0 0.0.0.255 area 1
+ network 192.1.100.0 0.0.0.255 area 1
+!
+snmp-server host 172.16.0.254 traps version 2c ruijie
+snmp-server host 172.16.0.254 traps version 2c public
+snmp-server enable traps
+snmp-server community ruijie rw 
+snmp-server community public ro 
+!
+line console 0
+line vty 0 4
+ transport input ssh
+ login local
+!
+end       

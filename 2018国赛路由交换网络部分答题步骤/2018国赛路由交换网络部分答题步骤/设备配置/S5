@@ -1,0 +1,267 @@
+FX-S5750-01#sh run
+
+Building configuration...
+Current configuration: 6389 bytes
+
+version S5750_RGOS 11.4(1)B12P11
+hostname FX-S5750-01
+!
+no spanning-tree
+!
+username admin password admin
+!
+cwmp
+!
+service dhcp
+ip dhcp excluded-address 194.1.20.254 
+ip dhcp excluded-address 194.1.30.254 
+ip dhcp excluded-address 194.1.40.254 
+!
+ip dhcp pool AP
+ hardware-address 0074.9c22.f6c4
+ host 194.1.20.2 255.255.255.0
+ default-router 194.1.20.254 
+!
+ip dhcp pool Wiressless_users1
+ network 194.1.30.0 255.255.255.0
+ default-router 194.1.30.254 
+!
+ip dhcp pool Wiressless_users2
+ network 194.1.40.0 255.255.255.0
+ default-router 194.1.40.254 
+!
+install 0 S5750-24GT4XS-L
+!
+sysmac 5869.6cd5.76bf
+!
+nfpp
+!
+no service password-encryption
+!
+redundancy
+!
+no zam
+enable password admin
+enable service ssh-server
+!
+vlan 10
+ private-vlan primary
+ private-vlan association add 11-12
+ name Primary_vlan
+!
+vlan 11
+ private-vlan community
+ name Community_vlan
+!
+vlan 12
+ private-vlan isolated
+ name Isolated_vlan
+!
+vlan 20
+ name AP
+!
+vlan 30
+ name Wiressless_users1
+!
+vlan 40
+ name Wiressless_users2
+!
+vlan 1
+!
+interface GigabitEthernet 0/1
+ storm-control broadcast level 2
+ storm-control multicast level 2
+ storm-control unicast level 2
+ switchport mode private-vlan host
+ switchport private-vlan host-association 10 11
+ rate-limit input 10000 1024
+ switchport port-security mac-address 00ff.ffff.ffff vlan 11
+ switchport port-security maximum 1
+ switchport port-security
+!
+interface GigabitEthernet 0/2
+ storm-control broadcast level 2
+ storm-control multicast level 2
+ storm-control unicast level 2
+ switchport mode private-vlan host
+ switchport private-vlan host-association 10 11
+ rate-limit input 10000 1024
+!
+interface GigabitEthernet 0/3
+ storm-control broadcast level 2
+ storm-control multicast level 2
+ storm-control unicast level 2
+ switchport mode private-vlan host
+ switchport private-vlan host-association 10 11
+ rate-limit input 10000 1024
+!
+interface GigabitEthernet 0/4
+ storm-control broadcast level 2
+ storm-control multicast level 2
+ storm-control unicast level 2
+ switchport mode private-vlan host
+ switchport private-vlan host-association 10 11
+ rate-limit input 10000 1024
+!
+interface GigabitEthernet 0/5
+ storm-control broadcast level 2
+ storm-control multicast level 2
+ storm-control unicast level 2
+ switchport mode private-vlan host
+ switchport private-vlan host-association 10 12
+ rate-limit input 10000 1024
+!
+interface GigabitEthernet 0/6
+ storm-control broadcast level 2
+ storm-control multicast level 2
+ storm-control unicast level 2
+ switchport mode private-vlan host
+ switchport private-vlan host-association 10 12
+ rate-limit input 10000 1024
+!
+interface GigabitEthernet 0/7
+ storm-control broadcast level 2
+ storm-control multicast level 2
+ storm-control unicast level 2
+ switchport mode private-vlan host
+ switchport private-vlan host-association 10 12
+ rate-limit input 10000 1024
+!
+interface GigabitEthernet 0/8
+ storm-control broadcast level 2
+ storm-control multicast level 2
+ storm-control unicast level 2
+ switchport mode private-vlan host
+ switchport private-vlan host-association 10 12
+ rate-limit input 10000 1024
+!
+interface GigabitEthernet 0/9
+ storm-control broadcast level 2
+ storm-control multicast level 2
+ storm-control unicast level 2
+ rate-limit input 10000 1024
+!
+interface GigabitEthernet 0/10
+ storm-control broadcast level 2
+ storm-control multicast level 2
+ storm-control unicast level 2
+ rate-limit input 10000 1024
+!
+interface GigabitEthernet 0/11
+ storm-control broadcast level 2
+ storm-control multicast level 2
+ storm-control unicast level 2
+ rate-limit input 10000 1024
+!
+interface GigabitEthernet 0/12
+ storm-control broadcast level 2
+ storm-control multicast level 2
+ storm-control unicast level 2
+ rate-limit input 10000 1024
+!
+interface GigabitEthernet 0/13
+ storm-control broadcast level 2
+ storm-control multicast level 2
+ storm-control unicast level 2
+ rate-limit input 10000 1024
+!
+interface GigabitEthernet 0/14
+ storm-control broadcast level 2
+ storm-control multicast level 2
+ storm-control unicast level 2
+ rate-limit input 10000 1024
+!
+interface GigabitEthernet 0/15
+ storm-control broadcast level 2
+ storm-control multicast level 2
+ storm-control unicast level 2
+ rate-limit input 10000 1024
+!
+interface GigabitEthernet 0/16
+ storm-control broadcast level 2
+ storm-control multicast level 2
+ storm-control unicast level 2
+ rate-limit input 10000 1024
+!
+interface GigabitEthernet 0/17
+!
+interface GigabitEthernet 0/18
+!
+interface GigabitEthernet 0/19
+!
+interface GigabitEthernet 0/20
+!
+interface GigabitEthernet 0/21
+ switchport mode trunk
+ switchport trunk native vlan 20
+ switchport trunk allowed vlan only 20,30,40
+!         
+interface GigabitEthernet 0/22
+!
+interface GigabitEthernet 0/23
+!
+interface GigabitEthernet 0/24
+ no switchport
+ ip address 10.1.0.10 255.255.255.252
+ ip ospf network point-to-point
+!
+interface TenGigabitEthernet 0/25
+!
+interface TenGigabitEthernet 0/26
+!
+interface TenGigabitEthernet 0/27
+!
+interface TenGigabitEthernet 0/28
+!
+interface Loopback 0
+ ip address 11.1.0.5 255.255.255.255
+!
+interface VLAN 10
+ ip address 194.1.10.254 255.255.255.0
+ ipv6 address 2001:194:10::254/64
+ ipv6 enable
+ no ipv6 nd suppress-ra
+!
+interface VLAN 20
+ ip address 194.1.20.254 255.255.255.0
+ ipv6 address 2001:194:20::254/64
+ ipv6 enable
+ no ipv6 nd suppress-ra
+!
+interface VLAN 30
+ ip address 194.1.30.254 255.255.255.0
+ ipv6 address 2001:194:30::254/64
+ ipv6 enable
+ no ipv6 nd suppress-ra
+!
+interface VLAN 40
+ ip address 194.1.40.254 255.255.255.0
+ ipv6 address 2001:194:40::254/64
+ ipv6 enable
+ no ipv6 nd suppress-ra
+!
+router ospf 10
+ graceful-restart
+ passive-interface VLAN 10
+ passive-interface VLAN 20
+ passive-interface VLAN 30
+ passive-interface VLAN 40
+ network 10.1.0.8 0.0.0.3 area 0
+ network 11.1.0.5 0.0.0.0 area 0
+ network 194.1.10.0 0.0.0.255 area 0
+ network 194.1.20.0 0.0.0.255 area 0
+ network 194.1.30.0 0.0.0.255 area 0
+ network 194.1.40.0 0.0.0.255 area 0
+!
+snmp-server host 172.16.0.254 traps version 2c ruijie
+snmp-server host 172.16.0.254 traps version 2c public
+snmp-server enable traps
+snmp-server community ruijie rw 
+snmp-server community public ro 
+!
+line console 0
+line vty 0 4
+ transport input ssh
+ login local
+!
+end

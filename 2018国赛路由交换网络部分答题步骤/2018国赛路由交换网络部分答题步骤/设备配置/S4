@@ -1,0 +1,217 @@
+BX-S5750-02#
+BX-S5750-02#
+BX-S5750-02#sh run
+
+Building configuration...
+Current configuration: 4198 bytes
+
+version S5750_RGOS 11.4(1)B12P11
+hostname BX-S5750-02
+!
+spanning-tree mst configuration
+ revision 1
+ name ruijie
+!
+spanning-tree mst 0 priority 8192
+spanning-tree
+!
+username admin password admin
+!
+cwmp
+!
+service dhcp
+ip helper-address 11.1.0.11
+!
+install 0 S5750-24GT4XS-L
+!
+sysmac 5869.6cd5.74ff
+!
+nfpp
+!
+no service password-encryption
+!         
+redundancy
+!
+no zam
+enable password admin
+enable service ssh-server
+!
+vlan 10
+ name JXL
+!
+vlan 20
+ name SYL
+!
+vlan 30
+ name BGL
+!
+vlan 40
+ name TSG
+!
+vlan 100
+ name Manage
+!
+vlan range 1,50,60
+!
+interface GigabitEthernet 0/1
+ port-group 2
+!
+interface GigabitEthernet 0/2
+ port-group 2
+!
+interface GigabitEthernet 0/3
+ switchport mode trunk
+ switchport trunk allowed vlan only 50,60,100
+!
+interface GigabitEthernet 0/4
+ port-group 3
+!
+interface GigabitEthernet 0/5
+ port-group 3
+!
+interface GigabitEthernet 0/6
+!
+interface GigabitEthernet 0/7
+!
+interface GigabitEthernet 0/8
+!
+interface GigabitEthernet 0/9
+!
+interface GigabitEthernet 0/10
+!
+interface GigabitEthernet 0/11
+!
+interface GigabitEthernet 0/12
+!
+interface GigabitEthernet 0/13
+!
+interface GigabitEthernet 0/14
+!
+interface GigabitEthernet 0/15
+!
+interface GigabitEthernet 0/16
+!
+interface GigabitEthernet 0/17
+!
+interface GigabitEthernet 0/18
+!
+interface GigabitEthernet 0/19
+!
+interface GigabitEthernet 0/20
+!
+interface GigabitEthernet 0/21
+!
+interface GigabitEthernet 0/22
+!
+interface GigabitEthernet 0/23
+!
+interface GigabitEthernet 0/24
+ no switchport
+ ip address 10.1.0.6 255.255.255.252
+ ip ospf network point-to-point
+!
+interface TenGigabitEthernet 0/25
+!
+interface TenGigabitEthernet 0/26
+!
+interface TenGigabitEthernet 0/27
+!
+interface TenGigabitEthernet 0/28
+!
+interface AggregatePort 2
+ switchport mode trunk
+ switchport trunk allowed vlan only 10,20,30,40,50,60,100
+!
+interface AggregatePort 3
+ switchport mode trunk
+ switchport trunk allowed vlan only 10,20,30,40,50,60,100
+!         
+interface Loopback 0
+ ip address 11.1.0.34 255.255.255.255
+!
+interface VLAN 10
+ ip address 192.1.10.253 255.255.255.0
+ vrrp 10 ip 192.1.10.254
+ vrrp 10 ipv6 FE80::1
+ vrrp 10 ipv6 2001:192:10::254
+ ipv6 address 2001:192:10::253/64
+ ipv6 enable
+ no ipv6 nd suppress-ra
+ vrrp ipv6 10 priority 120
+ vrrp ipv6 10 accept_mode
+ vrrp 10 priority 120
+ ip ospf cost 10
+!
+interface VLAN 20
+ ip address 192.1.20.253 255.255.255.0
+ vrrp 20 ip 192.1.20.254
+ vrrp 20 ipv6 FE80::1
+ vrrp 20 ipv6 2001:192:20::254
+ ipv6 address 2001:192:20::253/64
+ ipv6 enable
+ no ipv6 nd suppress-ra
+ vrrp ipv6 20 priority 120
+ vrrp ipv6 20 accept_mode
+ vrrp 20 priority 120
+ ip ospf cost 10
+!
+interface VLAN 30
+ ip address 192.1.30.253 255.255.255.0
+ vrrp 30 ip 192.1.30.254
+ vrrp 30 ipv6 FE80::1
+ vrrp 30 ipv6 2001:192:30::254
+ ipv6 address 2001:192:30::253/64
+ ipv6 enable
+ no ipv6 nd suppress-ra
+ vrrp ipv6 30 priority 120
+ vrrp ipv6 30 accept_mode
+ vrrp 30 priority 120
+ ip ospf cost 10
+!
+interface VLAN 40
+ ip address 192.1.40.253 255.255.255.0
+ vrrp 40 ip 192.1.40.254
+ vrrp 40 ipv6 FE80::1
+ vrrp 40 ipv6 2001:192:40::254
+ ipv6 address 2001:192:40::253/64
+ ipv6 enable
+ no ipv6 nd suppress-ra
+ vrrp ipv6 40 priority 120
+ vrrp ipv6 40 accept_mode
+ vrrp 40 priority 120
+ ip ospf cost 10
+!
+interface VLAN 100
+ ip address 192.1.100.253 255.255.255.0
+ vrrp 100 ip 192.1.100.254
+ vrrp 100 priority 120
+ ip ospf cost 5
+!
+router ospf 10
+ graceful-restart
+ passive-interface VLAN 10
+ passive-interface VLAN 20
+ passive-interface VLAN 30
+ passive-interface VLAN 40
+ area 1 nssa no-summary
+ area 1 default-cost 5
+ network 10.1.0.4 0.0.0.3 area 0
+ network 11.1.0.34 0.0.0.0 area 0
+ network 192.1.10.0 0.0.0.255 area 0
+ network 192.1.20.0 0.0.0.255 area 0
+ network 192.1.30.0 0.0.0.255 area 0
+ network 192.1.40.0 0.0.0.255 area 0
+ network 192.1.100.0 0.0.0.255 area 1
+!
+snmp-server host 172.16.0.254 traps version 2c ruijie
+snmp-server host 172.16.0.254 traps version 2c public
+snmp-server enable traps
+snmp-server community ruijie rw 
+snmp-server community public ro 
+!
+line console 0
+line vty 0 4
+ transport input ssh
+ login local
+!
+end

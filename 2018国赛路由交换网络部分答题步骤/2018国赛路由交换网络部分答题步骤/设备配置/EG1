@@ -1,0 +1,350 @@
+BX-EG2000-01(config)#sh run
+
+Building configuration...
+Current configuration: 8618 bytes
+
+version 11.1(6)B4
+hostname BX-EG2000-01
+!
+app-auth offline-detect
+!
+app-auth cfg-opt id-mac
+!
+ip session filter 0
+flow-pre-mgr enable
+flow-pre-mgr protocol-enable
+!
+flow-pre-mgr upload-pps-limit 0
+!
+flow-pre-mgr new-session-limit start-up limit 0
+flow-pre-mgr new-session-limit virtual-host limit 0
+flow-pre-mgr new-session-limit real-host limit 0
+!
+flow-pre-mgr total-limit 0
+port-label Interactive port 7,23,37,107,179,513-514,1718-1720,2000-2003,2427,2727,5060,5631,5900-5903,6000
+port-label Secure port 22,49,261,443,448,465,563,585,614,636,684,695,989-990,992-995,1701,1723,2252,2478-2479,2482,2484,2492,2679,2762,2998,3077-3078,3183,3191,3220,3269,3410,3424,3471,3496,3509,3529,3539,3660-3661,3713,3747,3864,3885
+in-path rule pass-through dstport name Secure description Secure(bypass) 
+in-path rule pass-through dstport name Interactive description Interactive(bypass) 
+!
+convert port 1 to lan
+convert port 2 to wan
+!         
+ip access-list extended 102
+ 10 permit icmp any host 20.1.0.6 
+ 20 permit icmp any host 30.1.0.6 
+ 30 permit icmp any host 40.1.0.6 
+ 40 permit tcp any host 20.1.0.6 eq telnet 
+ 50 permit tcp any host 30.1.0.6 eq telnet 
+ 60 permit tcp any host 40.1.0.6 eq telnet 
+ 70 permit ip 192.1.0.0 0.0.255.255 any 
+ 80 permit ip 172.16.0.0 0.0.3.255 any 
+ 90 permit tcp any host 20.1.0.2 eq 22 
+ 100 permit ospf any any 
+ 110 permit udp any any eq snmp 
+ 120 permit udp any any eq snmptrap 
+ 130 permit esp any any 
+ 140 permit udp any eq bootpc any eq bootps 
+ 150 permit udp any eq bootps any eq bootpc 
+ 160 permit udp any any eq 1701 
+!
+ip access-list extended 110
+ 10 permit ip 192.1.0.0 0.0.255.255 any time-range work 
+ 20 permit ip 172.16.0.0 0.0.3.255 any time-range work 
+!
+ip local pool l2tppool 12.1.0.1 12.1.0.254
+!
+time-range work
+ periodic Weekdays 9:00 to 17:00 
+!         
+route-auto-choose cnc GigabitEthernet 0/2 20.1.0.1
+route-auto-choose cnii GigabitEthernet 0/3 30.1.0.1
+route-auto-choose cernet GigabitEthernet 0/4 40.1.0.1
+!
+web-auth template iportal
+!
+web-auth template eportalv1
+!
+aaa new-model
+!
+aaa authentication ppp default subs
+aaa queue-limit account-request 20480
+no apm sample enable
+apm sample default interval 300
+apm sample url-topn send-time 1
+apm sample url-topn top 50
+!
+link-as port 10001
+link-as ip 0.0.0.0
+link-as username mcp
+identify-application enable
+!
+app-proxy udp enable
+!         
+web-bbs-audit cache enable
+!
+url-filter-notice display You are forbidden to visit the website, please contact webmaster!
+no url-audit exact-filter
+no url-rule apply-referer
+!
+cwmp
+!
+dev-audit enable
+service dhcp
+!
+ip dhcp pool Pool_VLAN10
+ network 192.1.10.0 255.255.255.0
+ default-router 192.1.10.254 
+!
+dns-proxy
+!
+mail-service enable
+feedback frequency 60
+flow-audit enable
+flow-audit intf-rt refresh 1
+flow-audit intf-rt storage 10 max
+!
+crypto isakmp mode-detect
+crypto isakmp policy 11
+ encryption 3des
+ authentication pre-share
+!
+crypto isakmp policy 12
+ authentication pre-share
+!
+crypto isakmp policy 13
+ encryption 3des
+ authentication pre-share
+ group 2
+!
+crypto isakmp policy 14
+ authentication pre-share
+ hash md5
+!
+crypto isakmp policy 15
+ encryption 3des
+ authentication pre-share
+ hash md5
+ group 2
+!
+crypto isakmp policy 16
+ encryption 3des
+ authentication pre-share
+ hash md5
+ group 2
+!
+crypto isakmp keepalive 30
+crypto isakmp key 7 035122110c3706 address 0.0.0.0 0.0.0.0 
+crypto ipsec transform-set vpdnSet esp-3des esp-md5-hmac
+ mode transport
+crypto ipsec transform-set vpdnSet_iphone esp-3des esp-md5-hmac
+ mode transport
+!
+crypto dynamic-map dymymap 6
+ set security-association lifetime seconds 3600
+ set transform-set vpdnSet vpdnSet_iphone
+ set mtu 1380
+!
+crypto map gi0/2 100 ipsec-isakmp dynamic dymymap
+!
+layer23 classify enable
+!
+layer23 scc-attention enable
+!
+layer23 flow-detect flow 0
+layer23 flow-detect time-interval 15
+!
+sam-online recycle 0
+sam-offline recycle 0
+!
+network-group name "Out_Server" parent "/"
+!
+subscriber static name "user1" parent "/" password 7 "1443185e"
+subscriber static name "user2" parent "/" password 7 "04664a55"
+subscriber static name "Vpn_Group" parent "/"
+subscriber static name "ruijie" parent "/Vpn_Group" password 7 "050a1337092610"
+!
+subscriber set "user1" attribute pwd-edit
+subscriber set "user2" attribute pwd-edit
+subscriber set "ruijie" attribute vpn-branch
+!
+subscriber allow "user1" privilege webauth
+subscriber allow "user2" privilege webauth
+subscriber allow "ruijie" privilege vpn
+!
+sys-mode gateway
+!
+specify interface GigabitEthernet 0/1 lan
+specify interface GigabitEthernet 0/2 wan
+specify interface GigabitEthernet 0/3 wan
+!
+no nat-log enable
+no ip nat-log on
+police-log auth-type mobile
+no service password-encryption
+!
+ip http port 80
+ip http secure-port 4430
+enable service web-server all
+enable service web-server http
+enable service web-server https
+!
+control-plane
+ anti-arp-spoof scan 20
+ attack threshold 500
+!
+control-plane protocol
+ no acpp
+!
+control-plane manage
+ no port-filter
+ no arp-car
+ no acpp
+!         
+control-plane data
+ no glean-car
+ no acpp
+!
+clock timezone UTC +8 0
+!
+vpdn enable
+vpdn limit_rate 15
+!
+vpdn-group l2tp
+! Default L2TP VPDN group
+ accept-dialin
+  protocol l2tp
+  virtual-template 2
+ l2tp tunnel authentication
+ l2tp tunnel force_ipsec
+ l2tp tunnel password ruijie
+!
+was http prefetch time_range web start 00:00 end 00:00
+was http prefetch interval_time web 60
+no was tcp optimization dre
+no was woc-web enable
+no was enable
+web quick-set
+webmaster username admin password 7 1443185e
+!
+flow-control Gi0/2
+ channel-tree inbound
+  no auto-pir enable
+  !
+  channel-group root parent null cir 100000 pir 100000 pri 4 fifo
+  channel-default root
+ !
+ channel-tree outbound
+  no auto-pir enable
+  !
+  channel-group root parent null cir 100000 pir 100000 pri 4 fifo
+  channel-default root
+ !
+!
+flow-control Gi0/3
+ channel-tree inbound
+  no auto-pir enable
+  !
+  channel-group root parent null cir 100000 pir 100000 pri 4 fifo
+  channel-default root
+ !
+ channel-tree outbound
+  no auto-pir enable
+  !
+  channel-group root parent null cir 100000 pir 100000 pri 4 fifo
+  channel-default root
+ !
+!
+flow-control Gi0/4
+ channel-tree inbound
+  no auto-pir enable
+  !
+  channel-group root parent null cir 100000 pir 100000 pri 4 fifo
+  channel-default root
+ !
+ channel-tree outbound
+  no auto-pir enable
+  !
+  channel-group root parent null cir 100000 pir 100000 pri 4 fifo
+  channel-default root
+ !
+!
+interface GigabitEthernet 0/0
+ ip address 10.1.0.1 255.255.255.252
+ ip ospf network point-to-point
+ ip nat inside
+!
+interface GigabitEthernet 0/1
+ ip address 10.1.0.5 255.255.255.252
+ ip ospf network point-to-point
+ ip nat inside
+!
+interface GigabitEthernet 0/2
+ bandwidth 100000
+ nexthop 20.1.0.1
+ reverse-path
+ ip address 20.1.0.6 255.255.255.248
+ crypto map gi0/2
+ ip nat outside
+!
+interface GigabitEthernet 0/3
+ bandwidth 100000
+ nexthop 30.1.0.1
+ reverse-path
+ ip address 30.1.0.6 255.255.255.248
+ ip nat outside
+!
+interface GigabitEthernet 0/4
+ bandwidth 100000
+ nexthop 40.1.0.1
+ reverse-path
+ ip address 40.1.0.6 255.255.255.248
+ ip nat outside
+!
+interface Loopback 0
+ ip address 11.1.0.11 255.255.255.255
+!
+interface Loopback 1
+ ip address 12.1.0.1 255.255.255.0
+!
+interface Virtual-Template 2
+ ip tcp adjust-mss 1368
+ ip mtu 1408
+ ip unnumbered Loopback 1
+ peer default ip address pool l2tppool
+ ppp authentication pap chap
+ ip nat inside
+!
+interface SSLVPN 0
+!
+interface SSLVPN 1
+!
+no app route mode new-flow
+!         
+native lan 0 vid 12
+!
+router ospf 10
+ graceful-restart
+ network 10.1.0.0 0.0.0.3 area 0
+ network 10.1.0.4 0.0.0.3 area 0
+ network 11.1.0.11 0.0.0.0 area 0
+ network 12.1.0.0 0.0.0.255 area 0
+ default-information originate metric-type 1
+!
+ip nat pool nat_pool prefix-length 24
+ address interface GigabitEthernet 0/2 match interface GigabitEthernet 0/2
+ address interface GigabitEthernet 0/3 match interface GigabitEthernet 0/3
+ address interface GigabitEthernet 0/4 match interface GigabitEthernet 0/4
+!
+ip nat outside source static tcp 11.1.0.6 23 20.1.0.20 23
+ip nat inside source static tcp 11.1.0.34 22 20.1.0.2 22 permit-inside
+ip nat inside source list 110 pool nat_pool overload
+!
+ip route 0.0.0.0 0.0.0.0 GigabitEthernet 0/2 20.1.0.1
+ip route 0.0.0.0 0.0.0.0 GigabitEthernet 0/3 30.1.0.1
+ip route 0.0.0.0 0.0.0.0 GigabitEthernet 0/4 40.1.0.1
+ip route 194.1.0.0 255.255.0.0 12.1.0.2
+!         
+line console 0
+line vty 0 4
+!
+end

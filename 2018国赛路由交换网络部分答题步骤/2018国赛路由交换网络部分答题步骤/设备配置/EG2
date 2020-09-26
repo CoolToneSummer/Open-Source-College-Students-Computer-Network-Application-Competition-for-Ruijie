@@ -1,0 +1,372 @@
+FX-EG2000-01#
+FX-EG2000-01#sh run
+
+Building configuration...
+Current configuration: 9094 bytes
+
+version 11.1(6)B4
+hostname FX-EG2000-01
+!
+app-auth offline-detect
+!
+app-auth cfg-opt id-mac
+!
+ip session filter 0
+flow-pre-mgr enable
+flow-pre-mgr protocol-enable
+!
+flow-pre-mgr upload-pps-limit 0
+!
+flow-pre-mgr new-session-limit start-up limit 0
+flow-pre-mgr new-session-limit virtual-host limit 0
+flow-pre-mgr new-session-limit real-host limit 0
+!
+flow-pre-mgr total-limit 0
+port-label Interactive port 7,23,37,107,179,513-514,1718-1720,2000-2003,2427,2727,5060,5631,5900-5903,6000
+port-label Secure port 22,49,261,443,448,465,563,585,614,636,684,695,989-990,992-995,1701,1723,2252,2478-2479,2482,2484,2492,2679,2762,2998,3077-3078,3183,3191,3220,3269,3410,3424,3471,3496,3509,3529,3539,3660-3661,3713,3747,3864,3885
+in-path rule pass-through dstport name Secure description Secure(bypass) 
+in-path rule pass-through dstport name Interactive description Interactive(bypass) 
+!
+convert port 1 to lan
+convert port 2 to wan
+!
+route-map Fenliu permit 10
+ match ip address 101
+ set ip next-hop verify-availability 20.1.0.9 track 1
+ set ip next-hop verify-availability 30.1.0.9 track 2
+!
+route-map Fenliu permit 20
+ match ip address 102
+ set ip next-hop verify-availability 40.1.0.9 track 3
+ set ip next-hop verify-availability 30.1.0.9 track 2
+!
+ip access-list extended 101
+ 10 permit ip 194.1.10.0 0.0.0.255 60.1.0.0 0.0.255.255 
+!
+ip access-list extended 102
+ 10 permit ip 194.1.40.0 0.0.0.255 70.1.0.0 0.0.255.255 
+!
+ip access-list extended 110
+ 10 permit ip 194.1.0.0 0.0.255.255 any 
+!
+time-range Night
+ periodic Daily 18:00 to 22:00 
+!
+time-range any
+ periodic Daily 0:00 to 23:59 
+!
+time-range work
+ periodic Weekdays 9:00 to 17:00 
+!
+route-auto-choose cnc GigabitEthernet 0/2 20.1.0.9
+route-auto-choose cnii GigabitEthernet 0/3 30.1.0.9
+route-auto-choose cernet GigabitEthernet 0/4 40.1.0.9
+!
+no apm sample enable
+apm sample default interval 300
+apm sample url-topn send-time 1
+apm sample url-topn top 50
+!
+link-as port 10001
+link-as ip 0.0.0.0
+link-as username mcp
+identify-application enable
+!
+app-proxy udp enable
+!
+web-bbs-audit cache enable
+!
+url-filter-notice display You are forbidden to visit the website, please contact webmaster!
+url-audit exact-filter
+no url-rule apply-referer
+!
+url-class un_audit_class
+ comment unaudit
+!
+url-class forbidClass
+ url 40.1.0.9
+!
+url-object un_audit_object
+ class 软件升级
+ class 脚本未知
+ class un_audit_class
+!
+url-object illegal
+ class forbidClass
+ class 暴力
+ class 病毒
+ class 成人
+ class 赌博
+ class 犯罪技能
+ class 色情
+ class 违反法律
+!         
+content-policy _AUDIT_DEFAULT
+ mail-rule audit-default-enable
+ im-rule audit-default-enable
+ web-bbs-rule audit-default-enable
+ web-search-rule audit-default-enable
+ web-mail-rule audit-default-enable
+ url-rule audit-default-enable
+!
+content-policy P2P
+ app-rule 1 time-range work app-group P2P应用软件 action permit
+!
+content-policy _TOP_PRIORITY
+ url-rule 997 url-object un_audit_object time-range any action permit comment 不审计的网站
+ url-rule 1000 url-object illegal time-range any action deny audit comment 黑名单网站策略
+!
+content-policy-relate relate auth-subscriber any policy _TOP_PRIORITY
+content-policy-relate relate subscriber any policy _TOP_PRIORITY
+content-policy-relate relate subscriber any policy P2P
+content-policy-relate relate subscriber any policy _AUDIT_DEFAULT
+!
+cwmp
+!
+dev-audit enable
+!         
+dns-proxy
+!
+mail-service enable
+feedback frequency 60
+flow-audit enable
+flow-audit intf-rt refresh 1
+flow-audit intf-rt storage 10 max
+!
+crypto isakmp mode-detect
+crypto isakmp policy 1
+ encryption 3des
+ authentication pre-share
+ hash md5
+ group 2
+!
+crypto isakmp policy 11
+ encryption 3des
+ authentication pre-share
+!
+crypto isakmp policy 12
+ authentication pre-share
+!
+crypto isakmp policy 13
+ encryption 3des
+ authentication pre-share
+ group 2
+!
+crypto isakmp policy 14
+ authentication pre-share
+ hash md5
+!
+crypto isakmp policy 16
+ encryption 3des
+ authentication pre-share
+ hash md5
+ group 2
+!
+crypto isakmp keepalive 30
+crypto isakmp key 7 1007072e0f1b4f address 20.1.0.6 
+crypto ipsec transform-set sl_set_1 esp-3des esp-md5-hmac
+ mode transport
+!
+crypto ipsec profile s_l2tpMap_1
+ set security-association lifetime seconds 3600
+ set transform-set sl_set_1
+ set exchange-mode aggressive
+!
+layer23 classify enable
+!
+layer23 scc-attention enable
+!
+layer23 flow-detect flow 0
+layer23 flow-detect time-interval 15
+!
+sam-online recycle 0
+sam-offline recycle 0
+!
+network-group name "Out_Server" parent "/"
+!
+sys-mode gateway
+!
+specify interface GigabitEthernet 0/1 lan
+specify interface GigabitEthernet 0/2 wan
+specify interface GigabitEthernet 0/3 wan
+!
+no nat-log enable
+no ip nat-log on
+police-log auth-type mobile
+no service password-encryption
+!
+ip http port 80
+ip http secure-port 4430
+enable service web-server all
+enable service web-server http
+enable service web-server https
+!
+control-plane
+ anti-arp-spoof scan 20
+ attack threshold 500
+!
+control-plane protocol
+ no acpp
+!
+control-plane manage
+ no port-filter
+ no arp-car
+ no acpp
+!
+control-plane data
+ no glean-car
+ no acpp
+!
+clock timezone UTC +8 0
+!
+track 1 Interface GigabitEthernet 0/2 line-protocol
+!         
+track 2 Interface GigabitEthernet 0/3 line-protocol
+!
+track 3 Interface GigabitEthernet 0/4 line-protocol
+!
+l2tp-class l2x_1
+ authentication
+ password ruijie
+!
+pseudowire-class pw_1
+ encapsulation l2tpv2
+ protocol l2tpv2 l2x_1
+!
+vpdn limit_rate 15
+!
+was http prefetch time_range web start 00:00 end 00:00
+was http prefetch interval_time web 60
+no was tcp optimization dre
+no was woc-web enable
+no was enable
+web quick-set
+webmaster username admin password 7 097e4741
+!
+flow-control Gi0/2
+ channel-tree inbound
+  no auto-pir enable
+  !
+  channel-group root parent null cir 100000 pir 100000 pri 4 fifo
+  channel-group WEB parent root cir 50000 pir 50000 pri 4 per-net per-pir 1000 limit 1000 
+  channel-default root
+ !
+ channel-tree outbound
+  no auto-pir enable
+  !
+  channel-group root parent null cir 100000 pir 100000 pri 4 fifo
+  channel-group WEB parent root cir 50000 pir 50000 pri 4 per-net per-pir 1000 limit 1000 
+  channel-default root
+ !
+ flow-rule 1 app-group WEB应用 time-range any 
+ flow-rule 1 action pass in-channel WEB out-channel WEB comment WEB
+!
+flow-control Gi0/3
+ channel-tree inbound
+  no auto-pir enable
+  !
+  channel-group root parent null cir 100000 pir 100000 pri 4 fifo
+  channel-default root
+ !
+ channel-tree outbound
+  no auto-pir enable
+  !
+  channel-group root parent null cir 100000 pir 100000 pri 4 fifo
+  channel-default root
+ !
+!
+flow-control Gi0/4
+ channel-tree inbound
+  no auto-pir enable
+  !
+  channel-group root parent null cir 100000 pir 100000 pri 4 fifo
+  channel-default root
+ !
+ channel-tree outbound
+  no auto-pir enable
+  !
+  channel-group root parent null cir 100000 pir 100000 pri 4 fifo
+  channel-default root
+ !
+!
+interface GigabitEthernet 0/0
+ ip address 10.1.0.9 255.255.255.252
+ ip ospf network point-to-point
+ ip policy route-map Fenliu
+ ip nat inside
+!
+interface GigabitEthernet 0/1
+ ip address 10.10.10.2 255.255.255.252
+!
+interface GigabitEthernet 0/2
+ bandwidth 100000
+ nexthop 20.1.0.9
+ reverse-path
+ ip address 20.1.0.14 255.255.255.248
+ ip nat outside
+ flow-policy Gi0/2
+!
+interface GigabitEthernet 0/3
+ bandwidth 100000
+ nexthop 30.1.0.9
+ reverse-path
+ ip address 30.1.0.14 255.255.255.248
+ ip nat outside
+!
+interface GigabitEthernet 0/4
+ bandwidth 100000
+ nexthop 40.1.0.9
+ reverse-path
+ ip address 40.1.0.14 255.255.255.248
+ ip nat outside
+!
+interface Loopback 0
+ ip address 11.1.0.12 255.255.255.255
+!
+interface Loopback 1
+ ip address 12.1.0.2 255.255.255.0
+!
+interface Virtual-ppp 1
+ ip tcp adjust-mss 1368
+ ip mtu 1408
+ ip unnumbered Loopback 1
+ ppp chap hostname ruijie
+ ppp chap password ruijie
+ ppp pap sent-username ruijie password ruijie
+ tunnel protection ipsec profile s_l2tpMap_1
+ pseudowire 20.1.0.6 12 encapsulation l2tpv2 pw-class pw_1
+!
+interface SSLVPN 0
+!
+interface SSLVPN 1
+!
+app route enable
+no app route mode new-flow
+app route P2P应用软件 interface GigabitEthernet 0/3 time-range Night
+!
+native lan 0 vid 12
+!
+router ospf 10
+ graceful-restart
+ network 10.1.0.8 0.0.0.3 area 0
+ network 11.1.0.12 0.0.0.0 area 0
+ network 12.1.0.0 0.0.0.255 area 0
+!
+ip nat pool nat_pool prefix-length 24
+ address interface GigabitEthernet 0/2 match interface GigabitEthernet 0/2
+ address interface GigabitEthernet 0/3 match interface GigabitEthernet 0/3
+ address interface GigabitEthernet 0/4 match interface GigabitEthernet 0/4
+!
+ip nat inside source list 110 pool nat_pool overload
+!
+ip route 0.0.0.0 0.0.0.0 GigabitEthernet 0/2 20.1.0.9
+ip route 0.0.0.0 0.0.0.0 GigabitEthernet 0/3 30.1.0.9
+ip route 0.0.0.0 0.0.0.0 GigabitEthernet 0/4 40.1.0.9
+ip route 172.16.0.0 255.255.252.0 Virtual-ppp 1
+ip route 192.1.0.0 255.255.0.0 Virtual-ppp 1
+!         
+line console 0
+line vty 0 4
+ login
+!
+end
